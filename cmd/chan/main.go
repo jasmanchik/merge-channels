@@ -54,5 +54,10 @@ func mergeChannels(channels ...<-chan any) <-chan any {
 		}()
 	}
 
+	go func() {
+		wg.Wait()
+		close(s)
+	}()
+
 	return s
 }
