@@ -32,10 +32,15 @@ func main() {
 
 func mergeChannels(channels ...<-chan any) <-chan any {
 
+	var wg sync.WaitGroup
 	var once sync.Once
 	s := make(chan any)
+	wg.Add(len(channels))
 	for _, ch := range channels {
-		go func(ch <-chan any, s chan any) {
+		s := s
+		ch := ch
+		go func() {
+			defer wg.Done()
 			for {
 				val, ok := <-ch
 				if !ok {
@@ -46,7 +51,7 @@ func mergeChannels(channels ...<-chan any) <-chan any {
 				}
 				s <- val
 			}
-		}(ch, s)
+		}()
 	}
 
 	return s
